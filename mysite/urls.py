@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.views.generic import TemplateView
-from apps.users.views import LoginView, LogoutView, SendSmsView, DynamicLoginView
+from apps.users.views import LoginView, LogoutView, SendSmsView, DynamicLoginView, RegisterView
 from django.conf.urls import url, include
 from django.views.decorators.csrf import csrf_exempt
 
@@ -27,5 +27,6 @@ urlpatterns = [
     path('d_login/', DynamicLoginView.as_view(), name="d_login"),
     path('logout/', LogoutView.as_view(), name="logout"),
     url(r'^captcha/', include('captcha.urls')),
-    url(r'^send_sms/', csrf_exempt(SendSmsView.as_view()), name="send_sms")
+    url(r'^send_sms/', csrf_exempt(SendSmsView.as_view()), name="send_sms"),
+    url(r'^register/', RegisterView.as_view(), name="register")
 ]

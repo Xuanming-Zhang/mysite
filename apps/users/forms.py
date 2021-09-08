@@ -25,3 +25,20 @@ class DynamicLoginPostForm(forms.Form):
         redis_code = r.get(mobile)
         if code != redis_code:
             raise forms.ValidationError("验证码不正确")
+        return code
+
+
+class RegisterPostForm(forms.Form):
+    mobile = forms.CharField(required=True, max_length=11, min_length=11)
+    code = forms.CharField(required=True, min_length=4, max_length=4)
+    password = forms.CharField(required=True)
+
+    def clean_code(self):
+        code = self.data["code"]
+        mobile = self.data["mobile"]
+
+        r = redis.Redis(host="127.0.0.1", port=6379, charset="utf8", decode_responses=True)
+        redis_code = r.get(mobile)
+        if code != redis_code:
+            raise forms.ValidationError("验证码不正确")
+        return code

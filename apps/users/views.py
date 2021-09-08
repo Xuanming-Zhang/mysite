@@ -4,14 +4,61 @@ from django.views.generic.base import View
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.http import HttpResponseRedirect, JsonResponse
-from apps.users.forms import LoginForm, CaptchaForm, DynamicLoginPostForm
+from apps.users.forms import LoginForm, CaptchaForm, DynamicLoginPostForm, RegisterPostForm
 from apps.users.models import UserProfile
 from mysite.settings import default_code, fake_password
 
 
 # Create your views here.
 
+class RegisterView(View):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return HttpResponseRedirect(reverse("index"))
+        captcha_form = CaptchaForm()
+        return render(request, "register.html", {
+            "captcha_form": captcha_form
+        })
+
+    def post(self, request, *args, **kwargs):
+        d_post_form = RegisterPostForm(request.POST)
+        if d_post_form.is_valid():
+            mobile = d_post_form.cleaned_data["mobile"]
+            password = d_post_form.cleaned_data["password"]
+            users = UserProfile.objects.filter(mobile=mobile)
+            if users:
+                msg = "该账户已注册！"
+                dynamic_captcha_form = CaptchaForm()
+                return render(request, "register.html", {
+                    "dynamic_captcha_form": dynamic_captcha_form,
+                    "msg": msg
+                })
+            else:
+                user = UserProfile(username=mobile)
+                user.mobile = mobile
+                user.set_password(password)
+                user.save()
+                login(request, user)
+                return HttpResponseRedirect(reverse("index"))
+        else:
+            dynamic_captcha_form = CaptchaForm()
+            return render(request, "register.html", {
+                "d_post_form":d_post_form,
+                "dynamic_captcha_form": dynamic_captcha_form
+            })
+
+
+
 class DynamicLoginView(View):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return HttpResponseRedirect(reverse("index"))
+
+        dynamic_captcha_form = CaptchaForm()
+        return render(request, "login.html", {
+            "dynamic_captcha_form": dynamic_captcha_form
+        })
+
     def post(self, request, *args, **kwargs):
         d_post_form = DynamicLoginPostForm(request.POST)
         if d_post_form.is_valid():
