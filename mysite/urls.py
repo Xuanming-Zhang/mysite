@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.views.generic import TemplateView
 from apps.users.views import LoginView, LogoutView, SendSmsView, DynamicLoginView, RegisterView
+# from apps.organizations.views import OrgView
 from django.conf.urls import url, include
 from django.views.decorators.csrf import csrf_exempt
 
@@ -28,5 +29,8 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name="logout"),
     url(r'^captcha/', include('captcha.urls')),
     url(r'^send_sms/', csrf_exempt(SendSmsView.as_view()), name="send_sms"),
-    url(r'^register/', RegisterView.as_view(), name="register")
+    url(r'^register/', RegisterView.as_view(), name="register"),
+    #
+    # #机构相关url
+    # url(r'^org_list/', OrgView.as_view(), name="org_list"),
 ]
